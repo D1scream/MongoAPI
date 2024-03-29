@@ -12,6 +12,8 @@ using System.Globalization;
 using System.IO;
 using System.Reflection.Metadata;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace MongoAPI.Controllers
@@ -65,9 +67,17 @@ namespace MongoAPI.Controllers
                         filter.Add(val.Key, val.Value);
                     }
                 }
+                
                 Console.WriteLine(filter.ToString());
-                    List<Movie> collection = await db.GetCollection<Movie>(collectionName).Find(filter).ToListAsync();
-                    await response.WriteAsJsonAsync(collection);
+                List<BsonDocument> collection = await db.GetCollection<BsonDocument>(collectionName).Find(filter).ToListAsync();
+                var settings = new JsonWriterSettings { Indent = true , OutputMode = JsonOutputMode.Strict };
+                
+                List<string> cols = new List<string>();
+                foreach(BsonDocument doc in collection)
+                {
+                    cols.Add(doc.ToJson(settings));
+                }
+                await response.WriteAsJsonAsync(cols);
                 
             }
             catch (Exception ex)
