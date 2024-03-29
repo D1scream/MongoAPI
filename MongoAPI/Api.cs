@@ -26,49 +26,34 @@ namespace MongoAPI
                 var request = context.Request;
                 var path = request.Path;
                 string pathStr = path;
-                var expressionForNumber = "/computers/([0-9]+)$";   // если id представляет число
-                var expressionForString = "/computers/([a-b]+)$";   // если id представляет строку
+                var expressionForNumber = "/movies/([0-9]+)$";   // если id представляет число
+                var expressionForString = "/movies/([a-b]+)$";   // если id представляет строку
                 
                 MongoApiController mongoApiController = new MongoApiController("ShadrinDB","Movies");
                 if (path == "/movies" && request.Method == "GET")
                 {
                     await mongoApiController.GetMovies(response, request);
                 }
-                /*
-                else if (Regex.IsMatch(path, expressionForNumber) && request.Method == "GET")
+                
+                else if (path == "/movies" && request.Method == "POST")
                 {
-
-                    Console.WriteLine(path);
-                    string? id = path.Value?.Split("/")[2];
-                    double i = Convert.ToInt32(id);
-                    await mongoApiController.GetComputer(id, response);
+                    await mongoApiController.AddMovie(response, request);
                 }
-                else if (pathStr.Contains("/computers/") && request.Method == "GET")
+                else if (path == "/movies" && request.Method == "PUT")
                 {
-                    response.StatusCode = 400;
-                    await response.WriteAsJsonAsync(new { message = "id have to be integer" });
+                    await mongoApiController.UpdateMovie(response, request);
                 }
-                else if (path == "/computers" && request.Method == "POST")
+                else if (path.ToString().Split("/")[1] == "movies" && request.Method == "DELETE")
                 {
-                    await mongoApiController.CreateComputer(response, request);
+                    string? id = path.ToString().Split("/")[2];
+                    await mongoApiController.DeleteMovie(id, response);
                 }
-                else if (path == "/computers" && request.Method == "PUT")
-                {
-                    await mongoApiController.UpdateComputer(response, request);
-                }
-                else if (Regex.IsMatch(path, expressionForNumber) && request.Method == "DELETE")
-                {
-                    string? id = path.Value?.Split("/")[2];
-                    await mongoApiController.DeleteComputer(id, response);
-                }
-                */
                 else
                 {
                     response.StatusCode = 404;
                     await response.WriteAsJsonAsync(new { message = "page not found" });
 
                 }
-
             });
             /*
             app.MapGet("/api/movies/{id}", async (string id) =>
